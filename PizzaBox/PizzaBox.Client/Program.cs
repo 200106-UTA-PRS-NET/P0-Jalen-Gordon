@@ -7,7 +7,7 @@ using PizzaBox.Domain.Models;
 using PizzaBox.Storing.Repositories;
 using System.Linq;
 using PizzaBox.Storing;
-
+using Newtonsoft.Json;
 
 namespace PizzaBox.Client
 {
@@ -347,8 +347,26 @@ namespace PizzaBox.Client
                                         {
                                             action = "Login User";
                                             AddOrder(db, o);
-                                            user.previousOrder[chosenRestaurant.StoreName] = DateTime.Now;
+                                            if(user.previousOrder is null)
+                                            {
+                                                user.previousOrder = new Dictionary<string, DateTime>();
+                                                user.previousOrder[chosenRestaurant.StoreName] = DateTime.Now;
+                                            }
+                                            else
+                                            {
+                                                if(user.previousOrder.ContainsKey(chosenRestaurant.StoreName))
+                                                {
+                                                    user.previousOrder[chosenRestaurant.StoreName] = DateTime.Now;
+                                                }
+                                                else
+                                                {
+                                                    user.previousOrder.Add(chosenRestaurant.StoreName, DateTime.Now);
+                                                }
+                                            }
+                                            Dictionaryupdate(db, user);
+
                                         }
+                                        else { }
                                         
                                     }
                                     else
@@ -572,7 +590,17 @@ namespace PizzaBox.Client
                 Console.WriteLine($"{d.Storename}");
             }
         }
-        
+        static void Dictionaryupdate(PizzaDbContext db, User us)
+        {
+            var query = from d in db.Customer
+                      where d.Username == us.UserName
+                      select d;
+            foreach (Customer cus in query)
+            {
+                cus.Previousorder = JsonConvert.SerializeObject(us.previousOrder);
+            }
+            db.SaveChanges();
+        }
     }
 }
 

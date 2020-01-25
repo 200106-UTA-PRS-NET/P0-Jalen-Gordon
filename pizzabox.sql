@@ -16,6 +16,7 @@ Previousorder varchar(max) not null
 primary key(username)
 )
 
+
 -- Create Store Table
 create table Revature.Store(
 Storename varchar(20) not null,
@@ -44,4 +45,5 @@ add constraint FK_User_Order_Name foreign key(username) references Revature.Cust
 
 --Select all data from table CustomerOrder
 select * from Revature.CustomerOrder
-
+select * from Revature.Customer
+select * from Revature.Store
